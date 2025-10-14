@@ -210,3 +210,6 @@ we should not do any changes in the statefile, terraform will takecare of the st
 --> Never edit terraform.tfstate manually unless you really know what you’re doing.
 --> Don’t share it publicly — it can contain sensitive data (like passwords, IPs, access keys).
 --> Use remote backends for real projects.
+# ================big note about provider =======================
+if we do changes in the provider we have to do the reconfigure
+![alt text](image.png)
