@@ -212,4 +212,5 @@ we should not do any changes in the statefile, terraform will takecare of the st
 --> Use remote backends for real projects.
 # ================big note about provider =======================
 if we do changes in the provider we have to do the reconfigure
+![alt text](image-1.png) # added backend remote state in provider 
 ![alt text](image.png)
