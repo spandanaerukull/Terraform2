@@ -211,6 +211,7 @@ we should not do any changes in the statefile, terraform will takecare of the st
 --> Don’t share it publicly — it can contain sensitive data (like passwords, IPs, access keys).
 --> Use remote backends for real projects.
 # ================big note about provider =======================
-if we do changes in the provider we have to do the reconfigure
-![alt text](image-1.png) # added backend remote state in provider 
+if we do any changes in the provider we have to do the reconfigure
+# added backend remote state in provider 
+![alt text](image-1.png) 
 ![alt text](image.png)
