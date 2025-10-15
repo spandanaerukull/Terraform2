@@ -204,6 +204,9 @@ terraform {
   }
 }
 This keeps it safe and prevents two people from changing resources at the same time.
+# we need to to lock the backend file in remotestate because===
+We need a lock for backend to prevent multiple people or processes from changing the Terraform state file at the same time.
+Locking avoids conflicts and corruption, making sure only one operation updates the state at once. This keeps your infrastructure safe and consistent.
 # ============changing the statefile is good or bad ?=============
 we should not do any changes in the statefile, terraform will takecare of the statefile, which is not our responsiblity 
 # Important Notes:
@@ -215,3 +218,26 @@ if we do any changes in the provider we have to do the reconfigure
 # added backend remote state in provider 
 ![alt text](image-1.png) 
 ![alt text](image.png)
+# ========provisioners============
+when you create the server using terraform, we can take some actions using provisioners
+1. local-exec
+2. remote-exec
+
+where I run terraform command, that is local to terraform
+remote means server I created using terraform
+# example how to use local provisioners 
+![alt text](image-2.png) 
+
+# we can mention the provisoners when should be it executed, in terraform we have 2 type 
+1.creation time provisioners
+--> Creation-time provisioners run automatically when you apply your Terraform code and the resource is created. 
+--> Creation-time execution means the provisioner runs automatically when the resource is first created by Terraform.
+So, when you apply your Terraform code and the resource is built, any creation-time provisioners will execute by default.
+2.destory time provisioners
+--> Destroy-time provisioners run when Terraform deletes a resource.
+They let you run cleanup commands or scripts just before the resource is removed.
+For example, you can use them to delete files, remove users, or notify other systems before the resource is gone.
+# example usecase
+![alt text](image-3.png)
+
+ 
