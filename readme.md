@@ -1,4 +1,4 @@
-# starting from terraform 
+# terraform concepts from starting 
 # steps #
 step-1 create folder in github
 step-2 clone in to vscode throuh gitbash
@@ -6,7 +6,7 @@ step-3 create provider
 step-4 configure aws in gitbash (acess key and screate key)
 step-5 then initialize the terraform through command (terraform init) #this means initializing the aws related provider 
 
-# terraform concepts
+# terraform concept
 -->terraform follows hashicorp configuration langugage
 everything is in flowerbraces {
 
@@ -225,19 +225,34 @@ when you create the server using terraform, we can take some actions using provi
 
 where I run terraform command, that is local to terraform
 remote means server I created using terraform
+
+# local-exec
+--> local-exec means running commands or scripts on your own computer (where you run Terraform), not on the remote server.
+For example, you can use it to print messages, copy files, or run scripts locally during Terraform apply.
 # example how to use local provisioners 
 ![alt text](image-2.png) 
+# remote-exec
+In Terraform, remote-exec is a provisioner that allows you to run commands on a remote machine (like an EC2 instance) after it has been created.
+--> it connects by using SSH and by giving user name and password
+# Simple Definition of remote-exec
+remote-exec = runs shell commands inside the created resource (like a VM) over SSH or WinRM.
+So, once Terraform finishes creating your server, it can automatically connect to it and run setup commands — such as installing packages, configuring files, or starting services.
+# example how to use remote-exec provisioners
+![alt text](image-4.png)
 
 # we can mention the provisoners when should be it executed, in terraform we have 2 type 
-1.creation time provisioners
+# 1.creation time provisioners
 --> Creation-time provisioners run automatically when you apply your Terraform code and the resource is created. 
 --> Creation-time execution means the provisioner runs automatically when the resource is first created by Terraform.
 So, when you apply your Terraform code and the resource is built, any creation-time provisioners will execute by default.
-2.destory time provisioners
+# 2.destory time provisioners
 --> Destroy-time provisioners run when Terraform deletes a resource.
 They let you run cleanup commands or scripts just before the resource is removed.
 For example, you can use them to delete files, remove users, or notify other systems before the resource is gone.
 # example usecase
 ![alt text](image-3.png)
+# ==note for when = destroy
+--> By giving when = destroy in provisioners, the provisioner will run before the resource is destroyed, not after.
+It lets you run cleanup actions just before Terraform deletes the resource.
 
  
