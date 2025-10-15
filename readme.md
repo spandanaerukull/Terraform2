@@ -273,6 +273,10 @@ Step 3️⃣ — Use variables in your main configuration (main.tf)
 ![alt text](image-9.png)
 in general terraform.tfvars means it overrides the default variables in variable.tf file 
 so when comming to the creating the multi-environment means here we are using the terraform.tfvars, in multi-env we create seperate folders for dev and prod & in that we create seperate backend.tf and .tfvars and we provide dev related info in dev folder and prod related info in prod folder & and comman related info we provide in variable.tf, so here which is not common we are giving in related folder so we run the dev or prod folder, use below commands 
+# note : We put environment-specific values in terraform.tfvars, not in variables.tf.
+If we add values for multiple environments in variables.tf, it can cause errors.
+exp:environment = "dev"
+instance_type = "t3.micro"
 first reconfigure the backand by using the below provided image command (command is provide in the image)
 ![alt text](image-10.png)
 then next run terraform play command 
@@ -293,6 +297,13 @@ The terraform.tfvars file stores environment-specific variable values — for ex
 
 Common or shared configurations (such as variable definitions) are placed in the main variables.tf file at the root level.
 Then, each environment folder only includes the non-common or environment-specific values.
+# pros
+no need to duplicate the code 
+consistancy
+# cons
+should be very cautions changes done in dev may go to prod also by mistake 
+# if we want to use this terraform.tfvars we shuld need full calirity what we are doing and where we are working 
+# it is good for samll projects not for big projects 
 
 
 
