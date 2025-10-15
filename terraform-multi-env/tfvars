@@ -1,0 +1,10 @@
+creat dev.tfvar #file unfortunately did'nt down load in the github created tn the vs code 
+
+environment = "dev"
+instance_type = "t3.micro"
+
+
+production.tfvar #file 
+
+environment = "prod"
+instance_type ="t3.small"

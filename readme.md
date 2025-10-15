@@ -239,6 +239,8 @@ remote-exec = runs shell commands inside the created resource (like a VM) over S
 So, once Terraform finishes creating your server, it can automatically connect to it and run setup commands — such as installing packages, configuring files, or starting services.
 # example how to use remote-exec provisioners
 ![alt text](image-4.png)
+# sample output of remote server connects 
+![alt text](image-5.png)
 
 # we can mention the provisoners when should be it executed, in terraform we have 2 type 
 # 1.creation time provisioners
@@ -254,5 +256,44 @@ For example, you can use them to delete files, remove users, or notify other sys
 # ==note for when = destroy
 --> By giving when = destroy in provisioners, the provisioner will run before the resource is destroyed, not after.
 It lets you run cleanup actions just before Terraform deletes the resource.
+# how to create multiple infrastructure by using terraform 
+we can create multiple infrastructure by using terraform.tfvars
+exp: dev, prod, testing
+# what is terraform.tfvars
+terraform.tfvars is a special Terraform file used to store variable values separately from your main configuration files.
+it will override the default values through terraform.tfvars
+⚙️ How It Works
+first keep providers in remotestate and we should create the seperate folders for dev and prod & also create seperate buckets in aws s3 for dev & prod
+![alt text](image-7.png)
+Step 1️⃣ — Define variables in variables.tf
+![alt text](image-6.png)
+Step 2️⃣ — Assign values in terraform.tfvars
+![alt text](image-8.png)
+Step 3️⃣ — Use variables in your main configuration (main.tf)
+![alt text](image-9.png)
+in general terraform.tfvars means it overrides the default variables in variable.tf file 
+so when comming to the creating the multi-environment means here we are using the terraform.tfvars, in multi-env we create seperate folders for dev and prod & in that we create seperate backend.tf and .tfvars and we provide dev related info in dev folder and prod related info in prod folder & and comman related info we provide in variable.tf, so here which is not common we are giving in related folder so we run the dev or prod folder, use below commands 
+first reconfigure the backand by using the below provided image command (command is provide in the image)
+![alt text](image-10.png)
+then next run terraform play command 
+![alt text](image-11.png)
+next run terraformapply
+![alt text](image-12.png)
+
+# in simple term about terraform.tfvars
+In general, terraform.tfvars is used to override the default values defined in the variables.tf file.
+
+When it comes to multi-environment setups (like development and production), we usually create separate folders for each environment — for example, a dev folder and a prod folder.
+
+Inside each environment folder, we create separate files such as backend.tf and terraform.tfvars.
+
+The backend.tf file contains backend configuration (like the S3 bucket or remote state details).
+
+The terraform.tfvars file stores environment-specific variable values — for example, region, instance type, or tags for that environment.
+
+Common or shared configurations (such as variable definitions) are placed in the main variables.tf file at the root level.
+Then, each environment folder only includes the non-common or environment-specific values.
+
+
 
  
