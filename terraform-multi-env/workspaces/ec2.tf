@@ -1,7 +1,7 @@
 resource "aws_instance" "Roboshop" {
     count = length(var.instances)
   ami           = var.ami_id      # this is from loops concept by using count , by giving count=4 wecan creat 4 instance , we can can creat number of instance that we want 
-   instance_type = lookup(var.instance_type, terraform.workspace) # using lookup function to get instance type based on environment
+   instance_type = lookup(var.instance_type, terraform.workspace) # using lookup function to get instance type based on workspace
   vpc_security_group_ids = [aws_security_group.allows.id]
 
   tags = merge(
