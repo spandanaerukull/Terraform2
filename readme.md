@@ -320,25 +320,51 @@ if we want prod use terraform.workspace.prod
 # Default Behavior
 By default, Terraform starts with a workspace called default.
 All your state and resources go there unless you create new ones.
+# Now About the “Default” Workspace
+
+When you first initialize a Terraform project (terraform init),
+Terraform automatically creates a workspace called default.
+
+👉 So before you explicitly create or switch to any new workspace (like dev, prod, etc.),
+Terraform uses the default workspace by default.
 Example
 
-# Let’s say you have this configuration:
-resource "aws_instance" "web" {
-  ami           = "ami-0c55b159cbfafe1f0"
-  instance_type = "t2.micro"
-  tags = {
-    Name = "web-${terraform.workspace}"
-  }
-}
-# Now, run these commands 👇
-terraform workspace new dev
-terraform apply
-This will create an instance named web-dev.
+1️⃣ You start in your Terraform folder
 
-# Then switch to prod:
-terraform workspace new prod
+terraform init
+terraform plan
 terraform apply
-This time it creates a different instance, named web-prod — because each workspace has its own state file.
+
+You didn’t create any workspace — so it uses:
+
+🏠 Workspace: default
+
+Terraform’s state file (terraform.tfstate) belongs to this default workspace.
+
+2️⃣ Later, you decide to create a new one:
+
+terraform workspace new dev
+
+
+Now a new workspace is created (with its own state file).
+
+If you run:
+
+terraform workspace list
+
+
+You’ll see:
+
+default
+* dev
+
+
+The asterisk * shows your current workspace.
+
+💡 So your understanding:
+
+“Before creating a workspace, Terraform stores everything in the default workspace.”
+
 # errors in workspace
 1) if you create the dev workspace earlier and again if create with same name exp: dev it will throw error
 ![alt text](image-13.png)
