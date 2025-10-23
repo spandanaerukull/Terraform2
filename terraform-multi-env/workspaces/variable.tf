@@ -53,7 +53,7 @@ variable "instances" {
 variable "instance_type" {
     default = {
         dev = "t3.micro"
-        prod = "t3.small"
+        prod1 = "t3.small"
     }
 
   

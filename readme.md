@@ -93,7 +93,7 @@ This makes your code shorter and easier to manage.
 we cannot create the our own functions, we have use prebuilt functions 
 functions wil take some input and it will give some desired output
 # =======================data sources===========================
-data sources will fetch the info from provider 
+data sources will fetch the info from provider(aws) 
 so everytime it will get the updatad details of ami, vpc, or security groupids 
 data source also will quary the info from provider 
 # ====================locals============================
@@ -305,10 +305,18 @@ should be very cautions changes done in dev may go to prod also by mistake
 # if we want to use this terraform.tfvars we shuld need full calirity what we are doing and where we are working 
 # it is good for samll projects not for big projects 
 # ==========workspaces===================
+
 A Terraform workspace is a separate working environment within the same Terraform configuration.
 Each workspace has its own state file, which means it keeps track of its own set of resources.
 
 So — you can use one configuration to manage multiple environments (like dev, stage, prod) without creating multiple folders.
+here terraform will seperate variable for workspace 
+terraform.workspace =dev or prod 
+if we want dev use terraform.workspace.dev
+if we want prod use terraform.workspace.prod
+1) to get workspace commands in terraform 
+![alt text](image-14.png)
+
 # Default Behavior
 By default, Terraform starts with a workspace called default.
 All your state and resources go there unless you create new ones.
@@ -328,12 +336,16 @@ terraform apply
 This will create an instance named web-dev.
 
 # Then switch to prod:
-
 terraform workspace new prod
 terraform apply
 This time it creates a different instance, named web-prod — because each workspace has its own state file.
+# errors in workspace
+1) if you create the dev workspace earlier and again if create with same name exp: dev it will throw error
+![alt text](image-13.png)
+so create with different name 
+2) if you create the prod and you did'nt mention any value in the variable then you get error to overcome this we can give the default value 
 
-# 🧭 Useful Commands
+# 🧭 Useful Commands for workspace
 Command	Description
 terraform workspace list	Lists all workspaces
 terraform workspace new <name>	Creates a new workspace
@@ -354,7 +366,12 @@ Default workspace	default
 Common use case	dev, stage, prod environments
 Terraform variable	${terraform.workspace} to identify environment
 
-# what is difference between terraform.tfvars and workspaces?
+# how workspace maintain seperate statefile in remote state
+![alt text](image-15.png)
+![alt text](image-16.png)
+here in workspace everything is handeled by terraform 
+
+# # ==what is difference between terraform.tfvars and workspaces?
 Both terraform.tfvars and workspaces are used for managing multiple environments (like dev, test, prod) —
 but they do it in different ways.
 # ⚙️ 1️⃣ terraform.tfvars → Defines variable values
@@ -394,6 +411,78 @@ Use workspaces to separate environments (different state files).
 Use tfvars files to customize each environment’s variables.
 terraform workspace select dev
 terraform apply -var-file="dev.tfvars"
+# ==========modules==============
+What is a Terraform Module?
+--> A module in Terraform is simply a reusable group of Terraform resources.
+--> Think of a module like a folder that contains Terraform files (main.tf, variables.tf, outputs.tf) which perform a specific task — such as creating a VPC, EC2 instance, or S3 bucket.
+
+--> and we have some public modules also 
+# example of Public Modules
+
+Terraform has a public registry where you can use community-created modules.
+
+👉 Example:
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.0.0"
+
+  name = "my-vpc"
+  cidr = "10.0.0.0/16"
+}
+Here, you’re using a ready-made VPC module from Terraform Registry — no need to write the VPC code manually.
+
+# ============from here AWS concepts ====================
+vpc peering concept
+note: if two vpc are in same cidr range it will not work 
+
+# How do we get the module upadates when the platform engineers do changes in the modules?
+by using 
+![alt text](image-17.png)
+ when the platform engineers do changes in modules in the github we get the module updates by using terraform init -upgrade 
+ # ===============SSM parameters store ==================
+SSM Parameter Store is used to store values like IDs, passwords, API keys, AMI IDs, or configuration data — and it acts as a centralized storage that everyone in the team (or your infrastructure) can securely access.
+# Think of it like this:
+
+Instead of writing secrets or values directly in:
+
+Terraform code
+
+Ansible playbooks
+
+EC2 user data
+
+or environment variables
+
+You put them once in SSM Parameter Store — and any AWS service or team member (with permission) can fetch them safely.
+
+# 🧩 Example:
+
+Let’s say your team is working on multiple Terraform modules:
+
+Module A creates EC2 instances
+
+Module B creates RDS
+
+Module C creates ECS tasks
+
+Instead of each module hardcoding the database password or VPC ID,
+you store them in SSM like:
+
+/project/vpc/id = vpc-12345
+/project/db/password = MySecurePass123
+
+
+Now all modules can read the same values directly from SSM.
+
+# 🔐 Bonus:
+
+You can also control access —
+for example, give only the DevOps team permission to view passwords, but developers can only read non-sensitive configs.
+
+ # from here we creating the iaac for roboshop, iaac is same for all projects 
+ 1) when we are creating the infrastructure for any project first we have to create vpc 
+ 2) 2nd we need to create the security group 
+ 3) 
 
 
  
