@@ -458,6 +458,33 @@ module "vpc" {
 Here, you’re using a ready-made VPC module from Terraform Registry — no need to write the VPC code manually.
 # NOTE: when you create the new (or) adding the module in the previos module page you should do terraform init again
 
+# we have 2 types of modules
+1. developed on our own customised modules --> created by us 
+2. open source modules --> terraform devoloped
+
+custom modules
+===============
+pros
+=====
+1. everything is in our control
+
+cons
+=====
+1. we need to write lot of code
+2. we need to maintain
+
+opensource modules
+===============
+pros
+=====
+1. directly use, no need to write and maintain
+
+cons
+=====
+not in our control
+can't fully customise
+need to depend on community
+
 # ============from here AWS concepts ====================
 vpc peering concept
 note: if two vpc are in same cidr range it will not work 
@@ -542,6 +569,54 @@ Step 3️⃣: Done Securely
 You’re now securely connected to your private instance through the bastion.
 
 No private instance is ever exposed to the internet. 🔒
+
+# == difference between nat and bastion host ======
+Bastion Host
+
+It’s like a secure entry gate for your private servers.
+
+You manually connect (SSH or RDP) to your private instances through the bastion.
+
+Used by humans (admins/developers) to access private servers for maintenance or troubleshooting.
+
+It doesn’t route normal internet traffic — only remote login.
+
+👉 Example:
+You have private EC2 instances with no public IP. You connect first to the bastion (which has a public IP), then from there SSH into the private EC2s.
+
+🌐 NAT Gateway / NAT Instance
+
+It’s like a translator that lets private servers access the internet (for updates, package downloads, etc.) — but prevents the internet from accessing them.
+
+Used by servers (not humans).
+
+It only handles outbound traffic from private instances to the internet.
+
+👉 Example:
+A private EC2 wants to download software updates from the internet. It goes through the NAT Gateway to do that.
+
+# Bastion Host
+
+Yes, it handles both inbound and outbound traffic —
+but mainly inbound SSH/RDP connections from admins.
+
+Inbound → you (admin) connect into the bastion.
+
+Outbound → bastion connects from itself to private instances.
+
+So it’s two-way, but only for management traffic (not general internet use).
+
+# NAT Gateway
+
+It handles only outbound traffic from private instances to the internet.
+
+It does not allow inbound connections from the internet to the private instances.
+
+✅ Final Correct Statement:
+
+Bastion host handles both inbound (from admin) and outbound (to private instance) traffic for management purposes,
+while NAT Gateway handles only outbound traffic from private servers to the internet.
+
 
 
  
