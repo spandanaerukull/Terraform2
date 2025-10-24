@@ -456,6 +456,7 @@ module "vpc" {
   cidr = "10.0.0.0/16"
 }
 Here, you’re using a ready-made VPC module from Terraform Registry — no need to write the VPC code manually.
+# NOTE: when you create the new (or) adding the module in the previos module page you should do terraform init again
 
 # ============from here AWS concepts ====================
 vpc peering concept
@@ -508,7 +509,39 @@ for example, give only the DevOps team permission to view passwords, but develop
  # from here we creating the iaac for roboshop, iaac is same for all projects 
  1) when we are creating the infrastructure for any project first we have to create vpc 
  2) 2nd we need to create the security group 
- 3) 
+ 3) create the frontend and in the same subnet create the bastionhost also
+ 4) 
+
+ # ================Bastion host ===================
+ What is a Bastion Host?
+
+A Bastion Host (also called a Jump Server) is a special-purpose EC2 instance that acts as a secure gateway to access private instances (like EC2s in private subnets) inside your VPC.
+
+It’s basically a “jump point” — instead of allowing SSH access to all private instances from the internet, you allow SSH only to the bastion host.
+
+🧠 Why do we need it?
+
+In AWS, for security best practices, your private instances (like database servers, backend apps) shouldn’t have public IPs — so you can’t directly SSH into them.
+
+But sometimes, you still need admin or troubleshooting access.
+That’s where the bastion host comes in — it’s your controlled entry point.
+Step 1️⃣: Connect to Bastion Host
+
+Bastion Host has a public IP.
+
+Security group allows SSH (port 22) access only from your office/home IP.
+
+Step 2️⃣: From Bastion → Private Instance
+
+Once you SSH into the Bastion, you can SSH into private instances (like the App or DB server).
+
+Those private instances allow SSH only from the bastion host’s private IP (not from the internet).
+
+Step 3️⃣: Done Securely
+
+You’re now securely connected to your private instance through the bastion.
+
+No private instance is ever exposed to the internet. 🔒
 
 
  
