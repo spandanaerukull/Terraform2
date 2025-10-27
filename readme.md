@@ -458,9 +458,9 @@ module "vpc" {
 Here, you’re using a ready-made VPC module from Terraform Registry — no need to write the VPC code manually.
 # NOTE: when you create the new (or) adding the module in the previos module page you should do terraform init again
 
-# we have 2 types of modules
+# ========== we have 2 types of modules
 1. developed on our own customised modules --> created by us 
-2. open source modules --> terraform devoloped
+2. open source modules --> terraform devoloped 
 
 custom modules
 ===============
@@ -484,7 +484,7 @@ cons
 not in our control
 can't fully customise
 need to depend on community
-
+we need to follow their documentation 
 
 # ============from here AWS concepts ====================
 vpc peering concept
@@ -850,5 +850,204 @@ It decides which server will handle each request (using round-robin, least conne
 
 This ensures no single server is overwhelmed, improving performance and availability.
 
+# ==================target groups ===============
+What is a Target Group in AWS?
 
- 
+A Target Group is a collection of targets (EC2 instances, IP addresses, or Lambda functions) that a Load Balancer sends traffic to.
+
+Think of it like this:
+➡️ The Load Balancer receives traffic from users.
+➡️ It then forwards that traffic to the Target Group,
+➡️ And the Target Group decides which specific instance (target) should handle that request.
+
+🔹 How Target Groups Work (Step-by-Step)
+
+Create EC2 Instances
+
+For example, you create 2 EC2 instances:
+
+Instance A (10.0.1.10)
+
+Instance B (10.0.1.11)
+
+Create a Target Group
+
+You create a target group called web-target-group.
+
+Inside this target group, you register your instances A and B.
+So now the target group knows:
+👉 “I have two targets — A and B — ready to receive traffic.”
+
+Attach Target Group to Load Balancer
+
+When you create a Load Balancer (ALB, NLB, or GWLB),
+you attach this target group to it.
+
+Health Checks
+
+The Target Group continuously checks if the registered instances are healthy (usually by checking an endpoint like /health).
+
+If one instance fails, the Load Balancer stops sending traffic to that one until it’s healthy again.
+
+Traffic Distribution
+
+When users access your application through the Load Balancer,
+traffic is automatically distributed among healthy instances in the target group.
+
+🔹 Example
+
+You have a Load Balancer with a listener on port 80 (HTTP)
+→ That listener is configured to forward all traffic to web-target-group
+→ web-target-group has 2 healthy instances (A & B).
+→ The Load Balancer automatically balances traffic like this:
+
+Request 1 → Instance A
+
+Request 2 → Instance B
+
+Request 3 → Instance A
+
+and so on...
+Simple Diagram (Conceptually)
+           User
+             │
+             ▼
+      ┌────────────────┐
+      │ Load Balancer  │
+      └──────┬─────────┘
+             │ forwards traffic to
+             ▼
+      ┌────────────────┐
+      │ Target Group   │
+      ├────────────────┤
+      │ EC2 A (Healthy)│
+      │ EC2 B (Healthy)│
+      └────────────────┘
+Key Points to Remember
+
+Each Target Group can route traffic to multiple instances.
+
+Listeners on the Load Balancer decide which Target Group to forward to.
+
+You can have multiple target groups — for example:
+
+/catalog → catalog-target-group
+
+/cart → cart-target-group
+
+/user → user-target-group
+
+# =================listner=====================
+
+
+# senerio based : when we create the infra by using terraform we have to divide the infra in to two type 1 is project based and 2 is application based, & difference between project infra & application infra
+Project Infra --> one time infra --> we will create this first
+Application Infra --> frequently changed infra ---> EC2, R53 records, AMI, etc...
+
+Load Balancer, Listener, TargetGroup --> project infra
+
+# ================Why EC2 instances get deleted and recreated during deployment=============
+
+When you deploy a new version of an application, you don’t always update the same old EC2 instance.
+Instead, in most modern setups, new instances are created, and old ones are terminated.
+
+This happens mainly for reliability, automation, and zero-downtime deployment.
+
+# 1. Infrastructure as Code (Terraform / CloudFormation)
+
+If your infrastructure is managed by tools like Terraform, CloudFormation, or AWS CDK,
+then during terraform apply (or equivalent):
+
+If you change anything in the instance configuration (like AMI, tags, security group, user data, etc.),
+
+Terraform will destroy the old instance and create a new one because EC2s are immutable (can’t change certain properties after creation).
+
+✅ Example:
+If you update the AMI ID to use the latest app version:
+# old
+ami = "ami-0abc123"
+
+# new
+ami = "ami-0xyz456"
+Terraform will replace the instance → old EC2 deleted, new one created.
+# senirio based: when we do restart instances, instances ips will change, for that we use elastic ips for constant ips  but is costly, insted of elastc ip we can use sg groups,  we can attach  bastion host sg groups to albs
+ ![alt text](image-18.png)
+ here backend alb accecpting connection from bastion 
+
+so in real-time projects we use sg groups 
+# In Real-Time AWS Projects — Do We Use Elastic IPs or Security Groups?
+
+👉 We use Security Groups, not Elastic IPs (in most cases).
+
+Here’s why 👇
+
+🧩 1️⃣ Elastic IPs — used very rarely
+
+Elastic IPs are used only in specific cases, like:
+
+A Bastion Host (used for admin SSH access to private instances)
+
+A NAT Gateway (for private instances to reach the internet)
+
+Some legacy apps that require a fixed public IP (for whitelisting in external systems)
+
+✅ So yes, Elastic IPs are used — but only for infrastructure components, not application servers.
+
+🧩 2️⃣ For Applications → We use ALB + Security Groups
+
+For web apps or microservices:
+
+EC2 instances are in private subnets (no public IP, no Elastic IP)
+
+ALB (in public subnets) receives traffic from users
+
+ALB forwards traffic to EC2s through Target Groups
+
+Security Groups control traffic between ALB ↔ EC2
+
+✅ This is the standard real-time design used by almost every company.
+
+🧩 3️⃣ Why Security Groups are preferred
+Reason	Explanation
+Scalable	You can attach SGs to any number of instances automatically
+Secure	Controls who can talk to who (no open IPs)
+Dynamic	Works even if instance IPs change (SGs refer to other SGs, not IPs)
+Cost-effective	No charge for SGs, unlike unused Elastic IPs
+AWS Best Practice	Avoid static IPs; use DNS + SG + ALB instead
+🧩 4️⃣ Real-time Example Setup
+Component	Public/Private	Uses Elastic IP?	Uses SG?	Notes
+ALB	Public	❌ No	✅ Yes	Entry point for users
+EC2 Instances	Private	❌ No	✅ Yes	Backend app servers
+Bastion Host	Public	✅ Yes	✅ Yes	Admin SSH access only
+NAT Gateway	Public	✅ Yes	(AWS-managed)	For private subnet internet access
+🧩 5️⃣ In short:
+
+✅ Security Groups = used everywhere
+⚙️ Elastic IPs = only for Bastion or NAT
+❌ Never for app servers (we use ALB DNS name instead)
+
+💬 Final Summary:
+
+In real-time projects, we don’t assign Elastic IPs to EC2s that serve applications.
+Instead, we use ALBs and Security Groups — this gives scalability, security, and automation.
+because if you recreate or restart the sg group id will not change 
+
+# if we give anything in the user data and if we want to check the user data logs 
+![alt text](image-19.png)
+
+# Note : when we are creating the loadblancer first we need to create target groups 
+Correct Order:
+
+✅ First, create the Target Group,
+then
+✅ Create the Load Balancer and attach that Target Group to it.
+
+Why?
+
+Because:
+
+When you create a Load Balancer, AWS asks:
+
+“Which target group do you want this listener to forward traffic to?”
+
+So the Target Group must exist first, otherwise you won’t be able to attach it.
