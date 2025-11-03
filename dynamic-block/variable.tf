@@ -78,8 +78,8 @@ variable "domain_name" {
 
 }
 
-
-variable "ingress_ports" {
+# Ingress ports for the security group
+variable "ingress_ports" { # this is used for defining ingress ports for the security group for dynamic blocks
   default = [ # list of (map)
     {
       from_port = 22

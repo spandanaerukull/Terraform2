@@ -1051,3 +1051,207 @@ When you create a Load Balancer, AWS asks:
 “Which target group do you want this listener to forward traffic to?”
 
 So the Target Group must exist first, otherwise you won’t be able to attach it.
+# =================Null resource ================
+wht is null resource
+null resource it will not create any resourece, but it will follow the standed life cycle of the terraform, but you use the null resource to connect the instances 
+ 1) how to use
+ --> connect to the instance
+ --> copy the script 
+ --> executive the script
+ ![alt text](image-21.png)
+ here we mentioned triggere,  because when the mongodb instance is created it should trigger and connect the instance 
+ --> some times ansible pull is used where we do local ansible configurations 
+ ![alt text](image-22.png)
+ --> in mongodb  instance we are installing the ansible to do the mongodb configuration, which is more easy 
+
+ # ================IAM /ROLES ====================
+ What is IAM?
+
+IAM (Identity and Access Management) is a security service in AWS that helps you control who can access your AWS resources and what actions they can perform.
+
+Think of IAM like a security gate for your AWS account.
+Only the people (or systems) you allow can enter — and even then, they can do only what you permit.
+
+🧠 Simple Example
+
+Imagine you have a company AWS account.
+
+You’re the Admin — you can do anything.
+
+You have a Developer — who should only manage EC2 and S3.
+
+You have a Tester — who should only view logs.
+
+Using IAM, you can create different users with different permissions — so everyone gets just what they need, nothing more.
+
+That’s called Principle of Least Privilege.
+
+👥 IAM Components (the 4 main building blocks)
+1️⃣ IAM User
+
+A user is a person or application that logs in to AWS.
+You can assign a username and password (or access keys) to them.
+
+🧩 Example:
+You create a user called developer1 who can start or stop EC2 instances.
+
+2️⃣ IAM Group
+
+A group is a collection of users who share the same permissions.
+
+🧩 Example:
+All your developers can be in the Developers group.
+Attach one policy — and it applies to everyone in that group.
+
+3️⃣ IAM Policy
+
+A policy is a document (in JSON format) that defines what actions are allowed or denied.
+
+🧩 Example:
+
+{
+  "Effect": "Allow",
+  "Action": ["ec2:StartInstances", "ec2:StopInstances"],
+  "Resource": "*"
+}
+
+
+This policy means:
+
+The user can start and stop EC2 instances — nothing else.
+
+4️⃣ IAM Role
+
+A role is like a temporary identity that can be assumed by AWS services or users to get permissions.
+
+🧩 Example:
+
+An EC2 instance needs to read data from an S3 bucket.
+→ You create a role with S3 read access and attach it to the EC2 instance.
+→ Now, EC2 can access S3 without storing any passwords or keys.
+
+🔐 Real-Life Example: Roles in Action
+
+Imagine your EC2 instance runs an application that uploads logs to an S3 bucket.
+
+If you don’t use a role, you’d have to hardcode AWS keys (very insecure ❌).
+
+But with a role, AWS automatically gives that EC2 instance temporary permissions to access S3 safely.
+
+That’s the beauty of roles — secure, automatic, and temporary!
+
+🧩 IAM Role vs IAM User
+Feature	IAM User	IAM Role
+Used by	Humans or apps	AWS services or trusted entities
+Credentials	Permanent (username/password or keys)	Temporary
+Example	Developer logging in	EC2 accessing S3
+Security	Keys can be leaked	Safer, no keys stored
+⚙️ Common AWS Roles Examples
+Role Name	Purpose
+EC2 Role	Allow EC2 instances to access AWS services
+Lambda Role	Allow Lambda functions to access S3, DynamoDB, etc.
+ECS Task Role	Used by containers running in ECS
+CodeBuild Role	Used for building and deploying applications
+💡 Best Practices
+
+✅ Always use roles instead of access keys for AWS services.
+✅ Follow Least Privilege Principle — give only what’s needed.
+✅ Use IAM Groups to manage permissions easily.
+✅ Enable MFA (Multi-Factor Authentication) for extra security.
+
+🎯 In Short
+
+IAM = Who can access AWS + What they can do.
+
+Users = People.
+
+Groups = Team of users.
+
+Policies = Permissions.
+
+Roles = Temporary access for services.
+
+🧑‍💻 Example Visualization (You can add this image to your Hashnode)
+
+👤 User → assumes a 🧭 Role → gets permissions via 🧾 Policy → accesses AWS resource (like S3 or EC2).
+
+🚀 Final Thought
+
+IAM is the heart of AWS security.
+If you understand users, roles, and policies, you’ve already mastered 70% of AWS security basics.
+
+ Note: ![alt text](image-23.png) (aws config) this setup is used for IAM Acess
+for roles we dont need aws configuration 
+ ![alt text](image-25.png)![alt text](image-24.png)
+just attaching the roles to instance 
+
+# ==========attaching instances manually and automation way====
+I can attach catalogue to target group (manual way)
+I can take AMI from catalogue instance. I can give it to autoscaling (automation way)
+
+deployment --> means when we do small change
+==============
+1. create another catalogue instance
+2. configure it
+3. take AMI
+4. refresh autoscaling --> means delete the instances on old AMI and create the new instances in the new AMI 
+
+# Note: 
+Understanding How Instances Attach to Target Groups in AWS
+
+In real-time projects, there are two main ways to attach EC2 instances to a Target Group.
+
+1️⃣ Manual Method
+
+In this method, we first create an EC2 instance and then manually attach it to a Target Group under a Load Balancer.
+This approach works, but it requires manual configuration. So whenever there’s a change during deployment, we have to log in to the instance and update everything ourselves — which is time-consuming and not scalable.
+
+2️⃣ Automated Method (Using AMI and Auto Scaling Group)
+
+The better approach is to create a properly configured instance once, then take an AMI (Amazon Machine Image) of it.
+We then use that AMI in a Launch Template or Launch Configuration that’s linked with an Auto Scaling Group (ASG).
+This setup is much more efficient because the Auto Scaling Group can automatically create and attach new instances to the Target Group whenever needed.
+
+When a new deployment happens and there are changes in the configuration or application, we simply build a new AMI. The Auto Scaling Group will automatically create new instances from that updated AMI and terminate the old ones — ensuring zero downtime and consistency across all servers.
+
+✅ In short:
+Manual attachment requires us to configure each instance manually, while using AMIs with Auto Scaling makes the process automatic, reliable, and production-ready.
+
+# =======how we take the AMI ============
+when the instance is stoped we have to take the AMI 
+--> we can take the AMI when the instance is running but the small changes may happen when it is running so better to take the AMI when the instance is stoped
+
+nslookup is used for check ip address
+exp: ![alt text](image-26.png)
+In simple words:
+
+When you type a website like www.google.com, your system doesn’t understand names — it needs an IP address.
+
+nslookup helps you check what IP address a domain resolves to (or vice versa).
+Example:
+nslookup www.google.com
+
+
+Output:
+
+Name:    www.google.com
+Address: 142.250.190.68
+
+
+This means the domain name www.google.com is linked to the IP address 142.250.190.68.
+
+🔁 Reverse lookup:
+
+You can also check which domain an IP belongs to:
+
+nslookup 142.250.190.68
+
+✅ Summary:
+Command	Purpose
+nslookup <domain>	Finds IP address of a domain
+nslookup <IP>	Finds domain name from IP address
+
+So, to answer your question directly 👇
+
+NSLOOKUP is used for:
+🔹 Checking DNS records (domain-to-IP or IP-to-domain resolution).
