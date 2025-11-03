@@ -1255,3 +1255,6 @@ So, to answer your question directly 👇
 
 NSLOOKUP is used for:
 🔹 Checking DNS records (domain-to-IP or IP-to-domain resolution).
+
+# ========== git deleting and adding the repo=========
+![alt text](image-27.png)
