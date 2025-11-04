@@ -1353,9 +1353,10 @@ I had a Catalog instance running with old configurations.
 After making configuration changes, I created a new Launch Template with the updated setup and attached it to the Auto Scaling Group.
 Once I triggered an Instance Refresh, the Auto Scaling Group gradually terminated the old instances and launched new ones using the updated configuration.
 Now, my new Catalog instances are running with the latest configurations.
-# What is an Auto Scaling Group (ASG)?
+# ====What is an Auto Scaling Group (ASG)?====
 
 An Auto Scaling Group in AWS is a service that automatically manages EC2 instances — it can increase (scale out) or decrease (scale in) the number of EC2 instances based on demand or conditions you define.
+# Note:autoscaling will increase or decrease the instance based on cpu utlization 
 
 # Simple Example:
 
@@ -1440,3 +1441,63 @@ Load Balancer	                                      Distributes traffic to insta
 # In simple words:
 
 An Auto Scaling Group automatically adds or removes EC2 instances to match demand, replaces unhealthy ones, and ensures your application is always running with the right number of servers.
+
+--> when we do changes in the catalogue app just apply terraform apply then terraform will create the new instance and attache tto autoscaling the autoscaling will replace with the old instance am i correct? 
+ans ) Scenario you’re describing:
+
+You already have a catalogue app running inside an Auto Scaling Group (ASG).
+
+You made some changes — for example:
+
+New AMI version (updated app)
+
+Changed user data
+
+Updated configuration in Terraform
+Then you run:
+
+terraform apply
+
+# What Terraform actually does:
+
+Terraform checks what changed
+It compares your updated configuration with the current AWS setup (from the state file).
+
+If you changed the AMI (or Launch Template)
+Terraform updates the Launch Template or creates a new version of it.
+
+Terraform then updates the Auto Scaling Group
+It attaches the new Launch Template version to your ASG.
+
+✅ Up to this point — your understanding is correct.
+
+# But here’s the small clarification:
+
+After Terraform updates the ASG with the new launch template:
+
+The ASG does not automatically replace old instances.
+
+It will use the new template only for future instances (like scaling events or manual refresh).
+
+So the existing instances will continue running with the old configuration until you:
+
+Manually trigger an Instance Refresh, or
+
+The ASG replaces them automatically during scaling events (like scale-in/scale-out).
+
+# Example in AWS Console:
+
+After Terraform apply, you can go to:
+EC2 → Auto Scaling Groups → Instance Refresh → Start Instance Refresh
+
+Then AWS will:
+
+Launch new instances using the updated template
+
+Wait for them to become healthy
+
+Terminate the old instances
+
+# So your sentence (corrected version):
+
+“When we make changes in the catalog app and run terraform apply, Terraform updates the launch template and attaches it to the Auto Scaling Group. Then, if we trigger an instance refresh, the ASG gradually replaces old instances with new ones having the updated configuration.”
