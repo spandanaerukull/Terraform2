@@ -1546,3 +1546,207 @@ Attach the Target Group so that new instances register automatically to the Load
 Based on the desired capacity, ASG launches instances using the AMI defined in the Launch Template.
 
 These new instances will automatically register in the target group and serve traffic.
+
+Create instance
+
+Configure it with ansible
+
+Stop the instance
+
+Take AMI
+
+Delete the instance
+
+Launch template
+
+ASG depends on Launch template
+
+ASG policy --> AVGCPUUtilization
+
+Listener Rule
+
+scale-in --> delete
+scale-out --> create
+
+terraform-aws-roboshop
+# senerio based question
+![alt text](image-28.png)
+In this diagram, when user click catalog option, the request comes in the back-end like catalog back-end dev.84s.site, something like that. Am I correct? When we click something, that will attach to the back-end ALB, DNS.
+
+Scenario: User clicks “Catalogue” in the frontend app
+🔹 Step 1 – Request from the User
+
+The user is on the website:
+
+https://dev.daws84s.site
+
+
+This is your frontend application, hosted behind the public ALB (Application Load Balancer).
+
+🔹 Step 2 – Frontend calls the backend API
+
+When the user clicks on Catalogue, the frontend (React / Angular, etc.) makes an API call to:
+
+https://catalogue.backend-dev.daws84s.site
+
+
+This is an internal DNS name managed by Route 53 (Private Hosted Zone).
+
+🔹 Step 3 – Route 53 → Backend ALB
+
+catalogue.backend-dev.daws84s.site points to the private ALB inside your VPC.
+
+This backend ALB is not public — it’s only reachable from within the VPC (like the frontend or VPN).
+
+So the frontend connects to it internally via private networking.
+
+🔹 Step 4 – Backend ALB → Target Group
+
+The backend ALB listener (for example, port 8080 or 80) forwards this request to the Catalogue Target Group.
+
+Target Group has the EC2 instances running the Catalogue microservice.
+
+🔹 Step 5 – Target Group → Catalogue Instance
+
+The Catalogue EC2 instance receives the request and processes it (fetches data from MongoDB, etc.).
+
+The response is sent back through the same path:
+
+Catalogue EC2 → Target Group → Backend ALB → Frontend → User Browser
+
+✅ You are Correct:
+
+When the user clicks a button like “Catalogue,”
+the request goes to the backend ALB DNS (catalogue.backend-dev.daws84s.site),
+which routes to the correct target group and instances.
+
+🔐 Bonus Point: Why Backend ALB is Needed
+
+It isolates backend traffic inside the private subnet (secure).
+
+The frontend never talks directly to EC2 instances.
+
+If any instance is replaced by Auto Scaling, traffic is automatically redirected — no DNS changes needed.
+
+🧩 Simplified Request Flow
+User → Route 53 → Public ALB (Frontend)
+Frontend → Route 53 (Private) → Backend ALB (Catalogue)
+Backend ALB → Target Group → EC2 (Catalogue)
+EC2 → Database (MongoDB)
+# note: when we create the alb listener rule for https we need to add acm certificate for security 
+--> ACM provides HTTPS (secure) connections for your websites and load balancers.
+# here You Can Use ACM Certificates
+
+Application Load Balancer (ALB)
+
+Network Load Balancer (NLB)
+
+CloudFront Distributions
+
+API Gateway
+
+Elastic Beanstalk, etc.
+
+# Types of Certificates in ACM
+
+Public Certificates – Used for public websites (validated by DNS or email).
+
+Private Certificates – Used inside private networks (via AWS Private CA).
+
+# SSL vs TLS — In Simple Words
+
+Both SSL and TLS are security protocols used to encrypt data that travels between a client (like your browser) and a server (like a website).
+
+Think of them as bodyguards for your data while it travels over the internet.
+
+--> How It Works
+
+Here’s the flow when you open a secure website (HTTPS):
+
+You visit https://dev.daws84s.site
+
+Your browser says: “Hey server, let’s talk securely.”
+
+The server sends its SSL/TLS certificate (issued by ACM, for example).
+
+Browser verifies it’s valid and trusted.
+
+A secure encrypted connection is established using TLS.
+
+All data (login info, API calls, etc.) is now encrypted — safe from hackers.
+
+# What It Protects
+
+Prevents data theft (no one can read your passwords or API data).
+
+Ensures authenticity (you’re really talking to the right website).
+
+Prevents tampering (no one can modify data in transit).
+
+In One Line:
+
+SSL was the old protocol,
+TLS is the updated and secure version we use today —
+together they make your website HTTPS (secure).
+
+# Listener — What It Is
+
+A listener in AWS Application Load Balancer (ALB) is like a traffic director.
+It listens for incoming connections on a specific port (like 80 or 443) and decides where to send that traffic.
+
+🔹 How It Connects
+
+Yes — the listener is attached to both:
+
+The Load Balancer, and
+
+The Target Group
+
+Here’s the relationship:
+
+Client → Load Balancer → Listener → Target Group → EC2 Instances
+
+⚙️ Step-by-Step Flow
+
+User Request
+
+User visits https://dev.daws84s.site
+
+Request comes to the Load Balancer DNS name.
+
+Listener
+
+The listener (e.g., port 443 for HTTPS or 80 for HTTP)
+catches that incoming request.
+
+Rules
+
+The listener checks the rules (for example, hostname or path).
+
+Example:
+
+If hostname = catalogue.backend-dev.daws84s.site → Forward to Catalogue Target Group
+
+If hostname = cart.backend-dev.daws84s.site → Forward to Cart Target Group
+
+Target Group
+
+The listener forwards traffic to the target group based on the rule.
+
+Each target group has registered EC2 instances or containers running your app.
+
+Response
+
+Instance processes the request → sends response → goes back through the same path.
+
+✅ In Simple Words
+
+A listener is the bridge between the Load Balancer and the Target Groups.
+
+It:
+
+Listens on a port (80/443)
+
+Matches rules (hostname, path, etc.)
+
+Forwards traffic to the right target group
