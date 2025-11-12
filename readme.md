@@ -1750,3 +1750,10 @@ Listens on a port (80/443)
 Matches rules (hostname, path, etc.)
 
 Forwards traffic to the right target group
+
+# note: you have to install terraform where you run terraform commanads 
+
+# terraform target: terraform target is use to create the specific resource 
+In general, a target is the specific resource (or set of resources) you tell Terraform to apply, plan, or destroy — instead of running the operation on the entire configuration.
+
+So, Terraform target = specific resource focus.
