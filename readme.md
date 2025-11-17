@@ -76,7 +76,6 @@ example syntax: instance_type = var.environment =="dev" ? "t3.micro" : "t3.small
 3. dynamic block
 
 you can write count of resources you require under the resource definition
-+98/
 # ===============output.tf================
 In Terraform, an output is used to display or store the values of resources after execution — typically after a successful terraform apply.
 
@@ -1853,3 +1852,125 @@ Example: EC2 instance has issues, disk corrupted.
 Example: Replace an RDS instance or recreate an EKS node.
 
 # if the infra is created manually, how can you manage that with the terraform ?
+by using terraform import we can create the infra manually 
+
+import --> import is the (theriatocal) option 
+========
+1. write provider
+2. write resource block with no arguments, then terraform init
+3. then terraform import
+4. terraform fetch all the data about resources into state file
+5. write tf files using state file
+
+--> if we write .tf file , then it creates infra --forward way
+--> if we create the state file, then creating the .tf files  -- reverse way 
+# note : by using import we can do one or two resources not more than that to over come this we need to create the prallel infrastructure (pratical)
+# Simple Verbal Explanation (Use This in Interviews)
+
+“Parallel creation means we don’t disturb the existing production environment.
+First, we take care of data — DB snapshot, replication, S3 syncing, etc.
+Then we create a completely new parallel environment with a new ALB, ASG, EC2, target groups, VPC, and hosted zone.
+After full testing, we switch the Route53 traffic from the old environment to the new one. This gives zero downtime and easy rollback.”
+# terraform lifecycle
+2 types of args
+1. mutable -- we cannot change it
+2. immutable -- we can change it 
+Terraform lifecycle is a special block inside a resource that controls how Terraform creates, updates, and destroys that resource.
+
+It tells Terraform when to create, when to destroy, and what to ignore.
+Terraform Lifecycle Block (Simple Explanation)
+
+The lifecycle block helps you:
+
+✔ Prevent accidental updates
+✔ Force recreation
+✔ Ignore specific changes
+✔ Control delete behavior
+
+Here is the structure:
+
+resource "aws_instance" "example" {
+  ami           = "ami-123456"
+  instance_type = "t2.micro"
+
+  lifecycle {
+    create_before_destroy = true
+    prevent_destroy       = false
+    ignore_changes        = [ tags ]
+  }
+}
+
+⭐ Lifecycle Properties Explained
+1️⃣ create_before_destroy
+
+This creates a new resource first → then destroys the old one.
+
+Used in:
+
+Production-critical applications
+
+Zero-downtime deployments
+
+Blue-green style updates
+
+Example:
+lifecycle {
+  create_before_destroy = true
+}
+
+2️⃣ prevent_destroy
+
+This prevents Terraform from ever destroying this resource.
+If someone tries terraform destroy, Terraform will give an error.
+
+Used for:
+
+Databases
+
+VPCs
+
+S3 buckets with data
+
+Production resources
+
+Example:
+lifecycle {
+  prevent_destroy = true
+}
+
+3️⃣ ignore_changes
+
+Terraform will skip applying changes to specific attributes even if they differ from the state.
+
+Used when:
+
+External systems modify tags
+
+Auto Scaling changes instance count
+
+Someone manually updates security groups
+
+Dynamic values keep changing
+
+Example:
+lifecycle {
+  ignore_changes = [ tags, user_data ]
+}
+
+⭐ Short Interview Answer
+
+“The Terraform lifecycle block controls how a resource is created, updated, and destroyed.
+We commonly use it to create resources before destroying them, prevent accidental deletion, and ignore certain attributes that change outside Terraform.”
+
+# securing state
+1. only terraform should create objects inside s3 bucket
+2. no one should have delete access
+3. a dedicate linux instance installed terraform should have role to create resources.
+4. s3 bucket should only allow instances with terraform role attached
+5. encyrpt state
+6. enable versioning
+7. users can have get state files access
+8. s3 cross region replication to update changes in another region bucket
+
+
+
